@@ -1,21 +1,20 @@
 import * as St from "./ModalStyle";
 import { Buttons } from "../../shared/GlobalStyle";
 import type { ModalProps } from "../../types/types";
+import { useAppDispatch } from "../../shared/hooks/hooks";
+import { removeTodo } from "../../shared/redux/modules/todoSlice";
 
-export default function Modal({
-  todos,
-  setTodos,
-  clicked,
-  setModal,
-}: ModalProps) {
+export default function Modal({ clicked, setModal }: ModalProps) {
+  // Redux
+  const dispatch = useAppDispatch();
+
   // Functions
   const closeModal = () => {
     setModal(false);
   };
 
   const deleteTodo = () => {
-    const filtered = todos.filter((todo) => todo.id !== clicked);
-    setTodos(filtered);
+    dispatch(removeTodo(clicked));
     closeModal();
   };
 

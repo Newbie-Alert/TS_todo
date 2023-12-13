@@ -3,12 +3,14 @@ import * as St from "./TodoContainerStyles";
 import Modal from "../modal/Modal";
 import type { PropsType } from "../../types/types";
 import { Buttons } from "../../shared/GlobalStyle";
+import { useAppDispatch, useAppSelector } from "../../shared/hooks/hooks";
+import { selectTodo, statusToggle } from "../../shared/redux/modules/todoSlice";
 
-export default function TodoContainer({
-  isCompleted,
-  todos,
-  setTodos,
-}: PropsType) {
+export default function TodoContainer({ isCompleted }: PropsType) {
+  // Redux
+  const todos = useAppSelector(selectTodo);
+  const dispatch = useAppDispatch();
+
   // States
   const [modal, setModal] = useState<boolean>(false);
   const [clicked, setCliked] = useState<string>("");
@@ -21,12 +23,7 @@ export default function TodoContainer({
 
   // Functions
   const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
-    const newTodos = todos.map((todo) => {
-      return todo.id === e.currentTarget.id
-        ? { ...todo, isActive: !todo.isActive }
-        : todo;
-    });
-    setTodos(newTodos);
+    dispatch(statusToggle(e.currentTarget.id));
   };
 
   const handleSelect = (id: string) => {
@@ -61,14 +58,7 @@ export default function TodoContainer({
           );
         })}
       </St.TodoListContainer>
-      {modal ? (
-        <Modal
-          todos={todos}
-          setTodos={setTodos}
-          setModal={setModal}
-          clicked={clicked}
-        />
-      ) : null}
+      {modal ? <Modal setModal={setModal} clicked={clicked} /> : null}
     </>
   );
 }

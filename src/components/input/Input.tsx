@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { v4 as uuid } from "uuid";
+import { nanoid } from "@reduxjs/toolkit";
 import * as St from "./InputStyles";
-import type { InputPropsType, UserInput } from "../../types/types";
+import type { UserInput } from "../../types/types";
+import { useAppDispatch } from "../../shared/hooks/hooks";
+import { addTodo } from "../../shared/redux/modules/todoSlice";
 
-export default function Input({ setTodos }: InputPropsType) {
+export default function Input() {
   // States
   const [input, setInput] = useState<UserInput>({
-    id: uuid(),
+    id: nanoid(),
     title: "",
     text: "",
     isActive: true,
@@ -14,6 +16,7 @@ export default function Input({ setTodos }: InputPropsType) {
 
   // Hooks
   const initRef = useRef<any>();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     initRef.current.focus();
@@ -28,9 +31,9 @@ export default function Input({ setTodos }: InputPropsType) {
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setTodos((prev) => [input, ...prev]);
+    dispatch(addTodo(input));
     setInput({
-      id: uuid(),
+      id: nanoid(),
       title: "",
       text: "",
       isActive: true,

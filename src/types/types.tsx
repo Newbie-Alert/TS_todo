@@ -7,14 +7,10 @@ export interface Todo {
 
 export interface PropsType {
   isCompleted: boolean;
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
 export interface ModalProps {
   setModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  todos: Todo[];
   clicked: string;
 }
 
