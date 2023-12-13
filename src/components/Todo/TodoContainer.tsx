@@ -1,96 +1,74 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
+import * as St from "./TodoContainerStyles";
+import Modal from "../modal/Modal";
+import type { PropsType } from "../../types/types";
+import { Buttons } from "../../shared/GlobalStyle";
 
-import type { Todo } from "../../App";
+export default function TodoContainer({
+  isCompleted,
+  todos,
+  setTodos,
+}: PropsType) {
+  // States
+  const [modal, setModal] = useState<boolean>(false);
+  const [clicked, setCliked] = useState<string>("");
 
-const TodoListContainer = styled.div`
-  width: 100%;
-  height: 300px;
-  display: flex;
-  flex-direction: column;
-  overflow: scroll;
-  border: 1px solid #1d1d1d;
-`;
-
-const TodoList = styled.div`
-  width: 100%;
-  padding: 1rem 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #eee;
-`;
-
-const TodoTitle = styled.div`
-  width: 100px;
-  font-weight: 600;
-`;
-
-const ButtonBox = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
-const Buttons = styled.button.attrs((props) => ({
-  type: "button",
-}))`
-  width: 90px;
-  border: none;
-  background-color: ${(props) =>
-    props.role === "완료" ? "aliceblue" : "pink"};
-  padding: 0.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${(props) =>
-      props.role === "완료" ? "#3b9cf2" : "#ff6666"};
-    color: white;
-  }
-`;
-
-interface PropsType {
-  isCompleted: boolean;
-  todos: Todo[];
-}
-
-export default function TodoContainer({ isCompleted, todos }: PropsType) {
+  // Variable
   const filtered =
     isCompleted === true
       ? todos.filter((todo) => todo.isActive === false)
       : todos.filter((todo) => todo.isActive === true);
 
-  const switchStatus = (e: React.MouseEvent<HTMLElement>): Todo[] => {
-    return todos.map((todo) => {
-      if (todo.id === e.currentTarget.id) {
-        console.log(1);
-        return { ...todo, isActive: !todo.isActive };
-      } else {
-        console.log(2);
-        return todo;
-      }
+  // Functions
+  const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
+    const newTodos = todos.map((todo) => {
+      return todo.id === e.currentTarget.id
+        ? { ...todo, isActive: !todo.isActive }
+        : todo;
     });
+    setTodos(newTodos);
+  };
+
+  const handleSelect = (id: string) => {
+    setCliked(id);
+  };
+
+  const modalToggle = (e: React.MouseEvent<HTMLElement>) => {
+    setModal((prev) => !prev);
+    handleSelect(e.currentTarget.id);
   };
 
   return (
-    <TodoListContainer>
-      {filtered.map((todo) => {
-        return (
-          <TodoList key={todo.id}>
-            <TodoTitle>{todo.title}</TodoTitle>
-            <div>{todo.text}</div>
-            <ButtonBox>
-              <Buttons onClick={switchStatus} role="완료" id={todo.id}>
-                {isCompleted ? "취소" : "완료"}
-              </Buttons>
-              <Buttons role="취소" id={todo.id}>
-                삭제
-              </Buttons>
-            </ButtonBox>
-          </TodoList>
-        );
-      })}
-    </TodoListContainer>
+    <>
+      <St.ContainerTitle>
+        {isCompleted === true ? "완료 항목" : "진행 중"}
+      </St.ContainerTitle>
+      <St.TodoListContainer>
+        {filtered.map((todo) => {
+          return (
+            <St.TodoList key={todo.id}>
+              <St.TodoTitle>{todo.title}</St.TodoTitle>
+              <div>{todo.text}</div>
+              <St.ButtonBox>
+                <Buttons onClick={switchStatus} role="완료" id={todo.id}>
+                  {isCompleted ? "취소" : "완료"}
+                </Buttons>
+                <Buttons onClick={modalToggle} role="삭제" id={todo.id}>
+                  삭제
+                </Buttons>
+              </St.ButtonBox>
+            </St.TodoList>
+          );
+        })}
+      </St.TodoListContainer>
+      {modal ? (
+        <Modal
+          todos={todos}
+          setTodos={setTodos}
+          setModal={setModal}
+          clicked={clicked}
+        />
+      ) : null}
+    </>
   );
 }

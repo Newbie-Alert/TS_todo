@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
 html, body, div, span, applet, object, iframe,
@@ -61,5 +61,27 @@ body {
 	box-sizing: border-box;
 }
 `
+
+//  공통 컴포넌트
+
+export const Buttons = styled.button.attrs({
+	type: "button",
+})`
+  width: 90px;
+  border: none;
+  background-color: ${(props) =>
+		props.role === "완료" ? "aliceblue" : "pink"};
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${(props) =>
+		props.role === "완료" ? "#3b9cf2" : "#ff6666"};
+    color: white;
+  }
+`;
+
 
 export default GlobalStyles
