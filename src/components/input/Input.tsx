@@ -3,7 +3,8 @@ import { nanoid } from "@reduxjs/toolkit";
 import * as St from "./InputStyles";
 import type { UserInput } from "../../types/types";
 import { useAppDispatch } from "../../shared/hooks/hooks";
-import { addTodo } from "../../shared/redux/modules/todoSlice";
+import { setTodo } from "../../shared/redux/modules/todoSlice";
+import { todoAPI } from "../../API/todoAPI";
 
 export default function Input() {
   // States
@@ -29,9 +30,18 @@ export default function Input() {
     name === "내용" && setInput((prev) => ({ ...prev, text: value }));
   };
 
+  const postTodo = async (body: UserInput) => {
+    try {
+      todoAPI.post("/todos", body);
+      fetchTodo();
+    } catch (err) {
+      throw new Error("등록 실패");
+    }
+  };
+
   const submitHandler = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    dispatch(addTodo(input));
+    postTodo(input);
     setInput({
       id: nanoid(),
       title: "",
@@ -39,7 +49,17 @@ export default function Input() {
       isActive: true,
     });
     initRef.current.focus();
+    fetchTodo();
   };
+
+  const fetchTodo = async () => {
+    const res = await todoAPI.get("/todos");
+    dispatch(setTodo(res.data));
+  };
+
+  useEffect(() => {
+    fetchTodo();
+  }, []);
 
   return (
     <St.InputContainer onSubmit={submitHandler}>

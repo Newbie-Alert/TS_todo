@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as St from "./TodoContainerStyles";
 import Modal from "../modal/Modal";
-import type { PropsType } from "../../types/types";
+import type { PropsType, Todo } from "../../types/types";
 import { Buttons } from "../../shared/GlobalStyle";
 import { useAppDispatch, useAppSelector } from "../../shared/hooks/hooks";
-import { selectTodo, statusToggle } from "../../shared/redux/modules/todoSlice";
+import { selectTodo, setTodo } from "../../shared/redux/modules/todoSlice";
+import { todoAPI } from "../../API/todoAPI";
 
 export default function TodoContainer({ isCompleted }: PropsType) {
   // Redux
@@ -22,8 +23,18 @@ export default function TodoContainer({ isCompleted }: PropsType) {
       : todos.filter((todo) => todo.isActive === true);
 
   // Functions
+  const patchTodo = async (id: string, edited: Partial<Todo>) => {
+    try {
+      await todoAPI.patch(`/todos/${id}`, edited);
+      fetchTodo();
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
-    dispatch(statusToggle(e.currentTarget.id));
+    let found = todos.find((todo) => todo.id === e.currentTarget.id);
+    patchTodo(e.currentTarget.id, { ...found, isActive: !found?.isActive });
   };
 
   const handleSelect = (id: string) => {
@@ -34,6 +45,15 @@ export default function TodoContainer({ isCompleted }: PropsType) {
     setModal((prev) => !prev);
     handleSelect(e.currentTarget.id);
   };
+
+  const fetchTodo = async () => {
+    const res = await todoAPI.get("/todos");
+    dispatch(setTodo(res.data));
+  };
+
+  useEffect(() => {
+    fetchTodo();
+  }, []);
 
   return (
     <>

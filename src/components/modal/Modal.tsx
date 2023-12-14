@@ -2,7 +2,8 @@ import * as St from "./ModalStyle";
 import { Buttons } from "../../shared/GlobalStyle";
 import type { ModalProps } from "../../types/types";
 import { useAppDispatch } from "../../shared/hooks/hooks";
-import { removeTodo } from "../../shared/redux/modules/todoSlice";
+import { setTodo } from "../../shared/redux/modules/todoSlice";
+import { todoAPI } from "../../API/todoAPI";
 
 export default function Modal({ clicked, setModal }: ModalProps) {
   // Redux
@@ -13,8 +14,22 @@ export default function Modal({ clicked, setModal }: ModalProps) {
     setModal(false);
   };
 
+  const fetchTodo = async () => {
+    const res = await todoAPI.get("/todos");
+    dispatch(setTodo(res.data));
+  };
+
+  const removeTodo = async (id: string) => {
+    try {
+      await todoAPI.delete(`/todos/${id}`);
+      fetchTodo();
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   const deleteTodo = () => {
-    dispatch(removeTodo(clicked));
+    removeTodo(clicked);
     closeModal();
   };
 
