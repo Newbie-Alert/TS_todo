@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { nanoid } from "@reduxjs/toolkit";
-import * as St from "./InputStyles";
+import { useMutation, useQueryClient } from "react-query";
 import type { UserInput } from "../../types/types";
-import { useAppDispatch } from "../../shared/hooks/hooks";
-import { __addTodo, __getTodo } from "../../shared/redux/modules/todoSlice";
+import { addTodo } from "../../API/todoAPI";
+import * as St from "./InputStyles";
 
 export default function Input() {
   // States
@@ -14,9 +14,17 @@ export default function Input() {
     isActive: true,
   });
 
+  // query
+  const queryClient = useQueryClient();
+  const mutation = useMutation(addTodo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("todos");
+    },
+    onError: () => {},
+  });
+
   // Hooks
   const initRef = useRef<any>();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     initRef.current.focus();
@@ -29,13 +37,13 @@ export default function Input() {
     name === "내용" && setInput((prev) => ({ ...prev, text: value }));
   };
 
-  const postTodo = (body: UserInput) => {
-    dispatch(__addTodo(body));
+  const postTodo = () => {
+    mutation.mutate(input);
   };
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    postTodo(input);
+    postTodo();
     setInput({
       id: nanoid(),
       title: "",
@@ -44,10 +52,6 @@ export default function Input() {
     });
     initRef.current.focus();
   };
-
-  useEffect(() => {
-    dispatch(__getTodo());
-  }, []);
 
   return (
     <St.InputContainer onSubmit={submitHandler}>

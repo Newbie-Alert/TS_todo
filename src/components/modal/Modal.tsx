@@ -1,12 +1,18 @@
 import * as St from "./ModalStyle";
-import { Buttons } from "../../shared/GlobalStyle";
+import { useMutation, useQueryClient } from "react-query";
 import type { ModalProps } from "../../types/types";
-import { useAppDispatch } from "../../shared/hooks/hooks";
-import { __removeTodo } from "../../shared/redux/modules/todoSlice";
+import { Buttons } from "../../shared/GlobalStyle";
+import { removeTodo } from "../../API/todoAPI";
 
 export default function Modal({ clicked, setModal }: ModalProps) {
-  // Redux
-  const dispatch = useAppDispatch();
+  // Query
+  const queryClient = useQueryClient();
+  const mutation = useMutation(removeTodo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("todos");
+      console.log("삭제 완료");
+    },
+  });
 
   // Functions
   const closeModal = () => {
@@ -14,7 +20,7 @@ export default function Modal({ clicked, setModal }: ModalProps) {
   };
 
   const deleteTodo = () => {
-    dispatch(__removeTodo(clicked));
+    mutation.mutate(clicked);
     closeModal();
   };
 

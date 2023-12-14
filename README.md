@@ -17,6 +17,10 @@
 
 - TS + RTK + json-server + AsyncThunk
 
+---
+
+- TS + json-server + react-query
+
 ### 공통 컴포넌트
 
 - Button 컴포넌트 (GlobalStyle.js)

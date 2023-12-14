@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
-import * as St from "./TodoContainerStyles";
-import Modal from "../modal/Modal";
+import React, { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import type { PropsType, Todo } from "../../types/types";
 import { Buttons } from "../../shared/GlobalStyle";
-import { useAppDispatch, useAppSelector } from "../../shared/hooks/hooks";
-import {
-  __getTodo,
-  __patchTodo,
-  selectTodo,
-} from "../../shared/redux/modules/todoSlice";
+import * as St from "./TodoContainerStyles";
+import Modal from "../modal/Modal";
+
+import { editTodo, getTodos } from "../../API/todoAPI";
 
 export default function TodoContainer({ isCompleted }: PropsType) {
-  // Redux
-  const { todo, isError } = useAppSelector(selectTodo);
-  const dispatch = useAppDispatch();
+  const { data, isError, isLoading } = useQuery("todos", getTodos);
+  console.log(data);
+  const queryClient = useQueryClient();
+  const mutation = useMutation(editTodo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("todos");
+      console.log("수정 완료");
+    },
+  });
 
   // States
   const [modal, setModal] = useState<boolean>(false);
@@ -22,13 +25,13 @@ export default function TodoContainer({ isCompleted }: PropsType) {
   // Variable
   const filtered =
     isCompleted === true
-      ? todo.filter((todo) => todo.isActive === false)
-      : todo.filter((todo) => todo.isActive === true);
+      ? data?.filter((todo: Todo) => todo.isActive === false)
+      : data?.filter((todo: Todo) => todo.isActive === true);
 
   // Functions
   const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
-    let found = todo.find((el) => el.id === e.currentTarget.id);
-    dispatch(__patchTodo(found as Todo));
+    let found = data.find((el: Todo) => el.id === e.currentTarget.id);
+    mutation.mutate({ ...found, isActive: !found?.isActive } as Todo);
   };
 
   const handleSelect = (id: string) => {
@@ -40,10 +43,6 @@ export default function TodoContainer({ isCompleted }: PropsType) {
     handleSelect(e.currentTarget.id);
   };
 
-  useEffect(() => {
-    dispatch(__getTodo());
-  }, []);
-
   if (isError) {
     return <h1>데이터를 불러올 수 없습니다</h1>;
   }
@@ -53,7 +52,7 @@ export default function TodoContainer({ isCompleted }: PropsType) {
         {isCompleted === true ? "완료 항목" : "진행 중"}
       </St.ContainerTitle>
       <St.TodoListContainer>
-        {filtered.map((todo) => {
+        {filtered?.map((todo: Todo) => {
           return (
             <St.TodoList key={todo.id}>
               <St.TodoTitle>{todo.title}</St.TodoTitle>

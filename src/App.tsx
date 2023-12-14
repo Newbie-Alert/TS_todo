@@ -3,6 +3,7 @@ import Header from "./components/header/Header";
 import styled from "styled-components";
 import Input from "./components/input/Input";
 import TodoContainer from "./components/Todo/TodoContainer";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const AppContainer = styled.div`
   width: 100%;
@@ -11,15 +12,19 @@ const AppContainer = styled.div`
   margin: auto;
 `;
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
     <>
-      <AppContainer>
-        <Header />
-        <Input />
-        <TodoContainer isCompleted={false} />
-        <TodoContainer isCompleted={true} />
-      </AppContainer>
+      <QueryClientProvider client={queryClient}>
+        <AppContainer>
+          <Header />
+          <Input />
+          <TodoContainer isCompleted={false} />
+          <TodoContainer isCompleted={true} />
+        </AppContainer>
+      </QueryClientProvider>
     </>
   );
 }

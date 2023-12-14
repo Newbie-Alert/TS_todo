@@ -5,7 +5,7 @@ export default function Header() {
   return (
     <St.HeaderContainer>
       <St.HeaderLogo>Todo List</St.HeaderLogo>
-      <St.HeaderTitle>TS_React + RTK + json-server + AsyncThunk</St.HeaderTitle>
+      <St.HeaderTitle>TS_React + json-server + react-query</St.HeaderTitle>
     </St.HeaderContainer>
   );
 }
