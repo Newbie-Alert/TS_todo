@@ -13,6 +13,9 @@
 
 - TS + RTK + json-server
 
+서버 실행
+> json-server --watch db.json --port 8080
+
 ### 공통 컴포넌트
 
 - Button 컴포넌트 (GlobalStyle.js)
