@@ -13,6 +13,10 @@
 
 - TS + RTK + json-server
 
+---
+
+- TS + RTK + json-server + AsyncThunk
+
 ### 공통 컴포넌트
 
 - Button 컴포넌트 (GlobalStyle.js)

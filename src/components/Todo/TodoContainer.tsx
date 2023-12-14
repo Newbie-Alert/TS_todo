@@ -4,12 +4,15 @@ import Modal from "../modal/Modal";
 import type { PropsType, Todo } from "../../types/types";
 import { Buttons } from "../../shared/GlobalStyle";
 import { useAppDispatch, useAppSelector } from "../../shared/hooks/hooks";
-import { selectTodo, setTodo } from "../../shared/redux/modules/todoSlice";
-import { todoAPI } from "../../API/todoAPI";
+import {
+  __getTodo,
+  __patchTodo,
+  selectTodo,
+} from "../../shared/redux/modules/todoSlice";
 
 export default function TodoContainer({ isCompleted }: PropsType) {
   // Redux
-  const todos = useAppSelector(selectTodo);
+  const { todo, isError } = useAppSelector(selectTodo);
   const dispatch = useAppDispatch();
 
   // States
@@ -19,22 +22,13 @@ export default function TodoContainer({ isCompleted }: PropsType) {
   // Variable
   const filtered =
     isCompleted === true
-      ? todos.filter((todo) => todo.isActive === false)
-      : todos.filter((todo) => todo.isActive === true);
+      ? todo.filter((todo) => todo.isActive === false)
+      : todo.filter((todo) => todo.isActive === true);
 
   // Functions
-  const patchTodo = async (id: string, edited: Partial<Todo>) => {
-    try {
-      await todoAPI.patch(`/todos/${id}`, edited);
-      fetchTodo();
-    } catch (err) {
-      alert(err);
-    }
-  };
-
   const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
-    let found = todos.find((todo) => todo.id === e.currentTarget.id);
-    patchTodo(e.currentTarget.id, { ...found, isActive: !found?.isActive });
+    let found = todo.find((el) => el.id === e.currentTarget.id);
+    dispatch(__patchTodo(found as Todo));
   };
 
   const handleSelect = (id: string) => {
@@ -46,15 +40,13 @@ export default function TodoContainer({ isCompleted }: PropsType) {
     handleSelect(e.currentTarget.id);
   };
 
-  const fetchTodo = async () => {
-    const res = await todoAPI.get("/todos");
-    dispatch(setTodo(res.data));
-  };
-
   useEffect(() => {
-    fetchTodo();
+    dispatch(__getTodo());
   }, []);
 
+  if (isError) {
+    return <h1>데이터를 불러올 수 없습니다</h1>;
+  }
   return (
     <>
       <St.ContainerTitle>
