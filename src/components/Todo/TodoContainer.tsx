@@ -28,7 +28,7 @@ export default function TodoContainer({ isCompleted }: PropsType) {
   // Functions
   const switchStatus = (e: React.MouseEvent<HTMLElement>) => {
     let found = todo.find((el) => el.id === e.currentTarget.id);
-    dispatch(__patchTodo(found as Todo));
+    dispatch(__patchTodo({ ...found, isActive: !found?.isActive } as Todo));
   };
 
   const handleSelect = (id: string) => {
